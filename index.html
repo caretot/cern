@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CERN Stay Tracker</title>
+  <style>
+    /* Reset & Base */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      line-height: 1.5;
+      padding: 20px;
+    }
+    h1, h2 { margin-bottom: 12px; }
+    .section { margin-bottom: 24px; }
+    .flex { display: flex; flex-wrap: wrap; gap: 16px; }
+    .card {
+      background: #1f1f1f;
+      border-radius: 8px;
+      padding: 16px;
+      flex: 1 1 300px;
+      min-width: 240px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .rates div, .live div, #exchange-rate { margin-bottom: 8px; }
+    .small { font-size: 0.9rem; color: #aaa; }
+    .azn { color: #00bcd4; }
+    .chf { color: #e0e0e0; }
+    hr { border: none; border-top: 1px solid #333; margin: 12px 0; }
+    .progress-bar {
+      position: relative;
+      background: #333;
+      border-radius: 4px;
+      overflow: hidden;
+      height: 16px;
+      margin-top: 4px;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #8a2be2, #e91e63);
+      width: 0;
+      transition: width 0.5s ease;
+    }
+    .label { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>CERN Stay & Budget Tracker</h1>
+
+  <div class="section">
+    <div class="card">
+      <h2>Current Date & Time</h2>
+      <div id="currentTime"></div>
+    </div>
+  </div>
+
+  <div class="section flex">
+    <div class="card rates">
+      <h2>Salary Rates</h2>
+      <!-- CHF Rates -->
+      <div>Per Day (CHF): <span id="rate-day" class="chf"></span> ₣</div>
+      <div>Per Hour (CHF): <span id="rate-hour" class="chf"></span> ₣</div>
+      <div>Per Minute (CHF): <span id="rate-minute" class="chf"></span> ₣</div>
+      <div>Per Second (CHF): <span id="rate-second" class="chf"></span> ₣</div>
+      <hr />
+      <!-- AZN Rates -->
+      <div>Per Day (AZN): <span id="rate-day-azn" class="azn"></span> ₼</div>
+      <div>Per Hour (AZN): <span id="rate-hour-azn" class="azn"></span> ₼</div>
+      <div>Per Minute (AZN): <span id="rate-minute-azn" class="azn"></span> ₼</div>
+      <div>Per Second (AZN): <span id="rate-second-azn" class="azn"></span> ₼</div>
+      <div id="exchange-rate" class="small">1 CHF = ... AZN</div>
+    </div>
+    <div class="card live">
+      <h2>Live Salary Earned</h2>
+      <div>CHF: <span id="live-chf" class="chf"></span> ₣</div>
+      <div>AZN: <span id="live-azn" class="azn"></span> ₼</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Progress</h2>
+    <div class="card">
+      <div class="label">Travel (21 Jun → 17 Aug)</div>
+      <div id="travel-info"></div>
+      <div class="progress-bar"><div id="travel-bar" class="progress-bar-inner"></div></div>
+    </div>
+    <div class="card">
+      <div class="label">Job (23 Jun → 15 Aug)</div>
+      <div id="job-info"></div>
+      <div class="progress-bar"><div id="job-bar" class="progress-bar-inner"></div></div>
+    </div>
+  </div>
+
+  <script>
+    // -- Constants
+    const salaryPerDay = 93;
+    const startJob = new Date('2025-06-23T00:01:00');
+    const endJob   = new Date('2025-08-15T23:59:00');
+    const startTravel = new Date('2025-06-21T00:01:00');
+    const endTravel   = new Date('2025-08-17T23:59:00');
+
+    // Rate calculations (CHF base)
+    const rateDay = salaryPerDay;
+    const rateHour = rateDay / 24;
+    const rateMin  = rateHour / 60;
+    const rateSec  = rateMin / 60;
+
+    // Exchange rate placeholder & fetch (CORS-friendly endpoint)
+    let exchangeRate = 1;
+    async function fetchRate() {
+      try {
+        const res = await fetch('https://api.exchangerate-api.com/v4/latest/CHF');
+        const json = await res.json();
+        exchangeRate = json.rates.AZN;
+        document.getElementById('exchange-rate').textContent =
+          `1 CHF = ${exchangeRate.toFixed(7)} AZN`;
+      } catch (e) {
+        console.warn('Exchange rate fetch failed', e);
+        document.getElementById('exchange-rate').textContent =
+          'Rate unavailable';
+      }
+    }
+
+    // Update all fields
+    async function update() {
+      const now = new Date();
+      // Time
+      document.getElementById('currentTime').textContent =
+        now.toLocaleString('en-GB', {
+          day: 'numeric', month: 'long', year: 'numeric',
+          hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
+        });
+
+      // Static CHF rates
+      document.getElementById('rate-day').textContent    = rateDay.toFixed(2);
+      document.getElementById('rate-hour').textContent   = rateHour.toFixed(2);
+      document.getElementById('rate-minute').textContent = rateMin.toFixed(2);
+      document.getElementById('rate-second').textContent = rateSec.toFixed(3);
+
+      // Static AZN rates
+      document.getElementById('rate-day-azn').textContent    = (rateDay * exchangeRate).toFixed(2);
+      document.getElementById('rate-hour-azn').textContent   = (rateHour * exchangeRate).toFixed(2);
+      document.getElementById('rate-minute-azn').textContent = (rateMin * exchangeRate).toFixed(2);
+      document.getElementById('rate-second-azn').textContent = (rateSec * exchangeRate).toFixed(3);
+
+      // Live earnings (CHF)
+      const elapsedMs = now - startJob;
+      const earnedChf = Math.max(0, (elapsedMs / 1000) * rateSec);
+      document.getElementById('live-chf').textContent = earnedChf.toFixed(2);
+      // Live earnings (AZN)
+      document.getElementById('live-azn').textContent = (earnedChf * exchangeRate).toFixed(2);
+
+      // Progress helper
+      function updateProgress(start, end, infoId, barId) {
+        const total = end - start;
+        const passed = now - start;
+        const pct = Math.min(Math.max(passed / total, 0), 1);
+        const diffPassed = Math.max(0, passed);
+        const diffLeft   = Math.max(0, end - now);
+        const daysP  = Math.floor(diffPassed / (1000*60*60*24));
+        const hrsP   = Math.floor((diffPassed % (1000*60*60*24)) / (1000*60*60));
+        const daysL  = Math.floor(diffLeft / (1000*60*60*24));
+        const hrsL   = Math.floor((diffLeft % (1000*60*60*24)) / (1000*60*60));
+
+        document.getElementById(infoId).textContent =
+          `Passed: ${daysP}d ${hrsP}h | Left: ${daysL}d ${hrsL}h | ${(pct*100).toFixed(2)}%`;
+        document.getElementById(barId).style.width = (pct * 100) + '%';
+      }
+
+      updateProgress(startTravel, endTravel, 'travel-info', 'travel-bar');
+      updateProgress(startJob, endJob, 'job-info', 'job-bar');
+    }
+
+    // Init fetch & update loop
+    (async ()=>{
+      await fetchRate();
+      update();
+      setInterval(update, 1000);
+    })();
+  </script>
+</body>
+</html>

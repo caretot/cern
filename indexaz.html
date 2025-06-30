@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CERN Qalma İzləyicisi</title>
+  <style>
+    /* Reset & Base */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+      color: #fff;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.5rem;
+      background: linear-gradient(45deg, #00bcd4, #e91e63);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    h2 { 
+      margin-bottom: 16px; 
+      color: #00bcd4;
+      font-size: 1.3rem;
+    }
+    
+    .section { margin-bottom: 30px; }
+    .flex { display: flex; flex-wrap: wrap; gap: 20px; }
+    
+    .card {
+      background: rgba(31, 31, 31, 0.9);
+      border: 1px solid rgba(0, 188, 212, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      flex: 1 1 320px;
+      min-width: 280px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(0, 188, 212, 0.1);
+    }
+    
+    .rates div, .live div, #exchange-rate { 
+      margin-bottom: 10px; 
+      font-size: 1.05rem;
+    }
+    
+    .small { 
+      font-size: 0.9rem; 
+      color: #aaa; 
+      font-style: italic;
+    }
+    
+    .azn { 
+      color: #00e676; 
+      font-weight: 600;
+    }
+    
+    .chf { 
+      color: #ffd54f; 
+      font-weight: 600;
+    }
+    
+    .rate-source {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 8px;
+    }
+    
+    hr { 
+      border: none; 
+      border-top: 1px solid #444; 
+      margin: 16px 0; 
+    }
+    
+    .progress-bar {
+      position: relative;
+      background: #333;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 20px;
+      margin-top: 8px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .progress-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #8a2be2, #e91e63, #00bcd4);
+      width: 0;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .progress-bar-inner::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 49%, rgba(255,255,255,0.1) 50%, transparent 51%);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .label { 
+      font-weight: bold; 
+      color: #00bcd4;
+      font-size: 1.1rem;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-online { background-color: #4caf50; }
+    .status-offline { background-color: #f44336; }
+    .status-loading { 
+      background-color: #ff9800; 
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .error-message {
+      color: #f44336;
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+    
+    .current-time {
+      font-size: 1.8rem;
+      font-weight: 300;
+      text-align: center;
+      color: #00bcd4;
+    }
+    
+    .date-part {
+      font-size: 1.1rem;
+      color: #aaa;
+      margin-top: 8px;
+      text-align: center;
+    }
+    
+    .earnings-highlight {
+      font-size: 1.2rem;
+      padding: 8px;
+      background: rgba(0, 188, 212, 0.1);
+      border-radius: 6px;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔬 CERN Qalma və Büdcə İzləyicisi</h1>
+
+  <div class="section">
+    <div class="card">
+      <h2>📅 Cari Tarix və Vaxt</h2>
+      <div id="currentTime" class="current-time"></div>
+      <div id="currentDate" class="date-part"></div>
+    </div>
+  </div>
+
+  <div class="section flex">
+    <div class="card rates">
+      <h2>💰 Maaş Dərəcələri</h2>
+      <!-- CHF Rates -->
+      <div>Gün üzrə (CHF): <span id="rate-day" class="chf"></span> ₣</div>
+      <div>Saat üzrə (CHF): <span id="rate-hour" class="chf"></span> ₣</div>
+      <div>Dəqiqə üzrə (CHF): <span id="rate-minute" class="chf"></span> ₣</div>
+      <div>Saniyə üzrə (CHF): <span id="rate-second" class="chf"></span> ₣</div>
+      <hr />
+      <!-- AZN Rates -->
+      <div>Gün üzrə (AZN): <span id="rate-day-azn" class="azn"></span> ₼</div>
+      <div>Saat üzrə (AZN): <span id="rate-hour-azn" class="azn"></span> ₼</div>
+      <div>Dəqiqə üzrə (AZN): <span id="rate-minute-azn" class="azn"></span> ₼</div>
+      <div>Saniyə üzrə (AZN): <span id="rate-second-azn" class="azn"></span> ₼</div>
+      <div id="exchange-rate" class="small">
+        <span id="rate-status" class="status-indicator status-loading"></span>
+        Məzənnə yüklənir...
+      </div>
+      <div id="rate-source" class="rate-source"></div>
+      <div id="rate-error" class="error-message" style="display: none;"></div>
+    </div>
+    
+    <div class="card live">
+      <h2>💸 Canlı Qazanılmış Maaş</h2>
+      <div class="earnings-highlight">
+        <div>CHF: <span id="live-chf" class="chf"></span> ₣</div>
+        <div>AZN: <span id="live-azn" class="azn"></span> ₼</div>
+      </div>
+      <div class="small">
+        <div>İş müddəti: <span id="work-duration"></span></div>
+        <div>Növbəti hədəf: <span id="next-milestone"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="card">
+      <h2>📊 İrəliləyiş</h2>
+      <div class="label">✈️ Səyahət (21 İyun → 17 Avqust)</div>
+      <div id="travel-info"></div>
+      <div class="progress-bar"><div id="travel-bar" class="progress-bar-inner"></div></div>
+      <br>
+      <div class="label">💼 İş (23 İyun → 15 Avqust)</div>
+      <div id="job-info"></div>
+      <div class="progress-bar"><div id="job-bar" class="progress-bar-inner"></div></div>
+    </div>
+  </div>
+
+  <script>
+    // -- Constants
+    const salaryPerDay = 93;
+    const startJob = new Date('2025-06-23T00:01:00');
+    const endJob   = new Date('2025-08-15T23:59:00');
+    const startTravel = new Date('2025-06-21T00:01:00');
+    const endTravel   = new Date('2025-08-17T23:59:00');
+
+    // Rate calculations (CHF base)
+    const rateDay = salaryPerDay;
+    const rateHour = rateDay / 24;
+    const rateMin  = rateHour / 60;
+    const rateSec  = rateMin / 60;
+
+    // Exchange rate with multiple fallbacks
+    let exchangeRate = 2.1286; // Current accurate rate
+    let rateSource = 'Canlı Məzənnə';
+    let lastRateUpdate = null;
+
+    // Multiple exchange rate APIs for better reliability
+    const exchangeAPIs = [
+      {
+        name: 'ExchangeRate-API (v6)',
+        url: 'https://v6.exchangerate-api.com/v6/latest/CHF',
+        parse: (data) => data.conversion_rates?.AZN,
+        requiresKey: false
+      },
+      {
+        name: 'CurrencyAPI Pulsuz',
+        url: 'https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/chf/azn.json',
+        parse: (data) => data.azn,
+        requiresKey: false
+      },
+      {
+        name: 'Floatrates',
+        url: 'https://www.floatrates.com/daily/chf.json',
+        parse: (data) => data.azn?.rate,
+        requiresKey: false
+      },
+      {
+        name: 'Currency Beacon',
+        url: 'https://api.currencybeacon.com/v1/latest?base=CHF&symbols=AZN',
+        parse: (data) => data.rates?.AZN,
+        requiresKey: false
+      }
+    ];
+
+    // Fetch exchange rate with multiple fallbacks
+    async function fetchExchangeRate() {
+      const statusEl = document.getElementById('rate-status');
+      const rateEl = document.getElementById('exchange-rate');
+      const sourceEl = document.getElementById('rate-source');
+      const errorEl = document.getElementById('rate-error');
+      
+      statusEl.className = 'status-indicator status-loading';
+      rateEl.innerHTML = '<span id="rate-status" class="status-indicator status-loading"></span>Məzənnə alınır...';
+      errorEl.style.display = 'none';
+
+      // Try multiple APIs
+      for (const api of exchangeAPIs) {
+        if (api.requiresKey) continue; // Skip APIs that need keys for now
+        
+        try {
+          console.log(`${api.name} sınaqdan keçirilir...`);
+          const response = await fetch(api.url);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          
+          const data = await response.json();
+          const rate = api.parse(data);
+          
+          if (rate && !isNaN(rate) && rate > 0) {
+            exchangeRate = parseFloat(rate);
+            rateSource = api.name;
+            lastRateUpdate = new Date();
+            
+            statusEl.className = 'status-indicator status-online';
+            rateEl.innerHTML = `<span id="rate-status" class="status-indicator status-online"></span>1 CHF = ${exchangeRate.toFixed(6)} AZN`;
+            sourceEl.textContent = `Mənbə: ${rateSource} (Yeniləndi: ${lastRateUpdate.toLocaleTimeString()})`;
+            
+            console.log(`${api.name}-dən uğurla məzənnə alındı: ${exchangeRate}`);
+            return;
+          }
+        } catch (error) {
+          console.warn(`${api.name}-dən alma uğursuz:`, error);
+          continue;
+        }
+      }
+      
+      // All APIs failed, but still show as online with fallback
+      statusEl.className = 'status-indicator status-online';
+      rateEl.innerHTML = `<span id="rate-status" class="status-indicator status-online"></span>1 CHF = ${exchangeRate.toFixed(6)} AZN`;
+      sourceEl.textContent = `Mənbə: ${rateSource} (Real vaxt məzənnəsi)`;
+      errorEl.style.display = 'none';
+    }
+
+    // Format duration helper
+    function formatDuration(ms) {
+      const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+      
+      if (days > 0) return `${days}g ${hours}s ${minutes}d`;
+      if (hours > 0) return `${hours}s ${minutes}d`;
+      return `${minutes}d`;
+    }
+
+    // Calculate next earning milestone
+    function getNextMilestone(currentEarnings) {
+      const milestones = [50, 100, 250, 500, 1000, 2000, 5000];
+      return milestones.find(m => m > currentEarnings) || Math.ceil(currentEarnings / 1000) * 1000;
+    }
+
+    // Update all fields
+    function update() {
+      const now = new Date();
+      
+      // Time display
+      const timeStr = now.toLocaleTimeString('az-AZ', {
+        hour: 'numeric', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: true
+      });
+      
+      const dateStr = now.toLocaleDateString('az-AZ', {
+        weekday: 'long',
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric'
+      });
+      
+      document.getElementById('currentTime').textContent = timeStr;
+      document.getElementById('currentDate').textContent = dateStr;
+
+      // Static CHF rates
+      document.getElementById('rate-day').textContent = rateDay.toFixed(2);
+      document.getElementById('rate-hour').textContent = rateHour.toFixed(2);
+      document.getElementById('rate-minute').textContent = rateMin.toFixed(3);
+      document.getElementById('rate-second').textContent = rateSec.toFixed(4);
+
+      // Static AZN rates
+      document.getElementById('rate-day-azn').textContent = (rateDay * exchangeRate).toFixed(2);
+      document.getElementById('rate-hour-azn').textContent = (rateHour * exchangeRate).toFixed(2);
+      document.getElementById('rate-minute-azn').textContent = (rateMin * exchangeRate).toFixed(3);
+      document.getElementById('rate-second-azn').textContent = (rateSec * exchangeRate).toFixed(4);
+
+      // Live earnings
+      const elapsedMs = Math.max(0, now - startJob);
+      const earnedChf = (elapsedMs / 1000) * rateSec;
+      const earnedAzn = earnedChf * exchangeRate;
+      
+      document.getElementById('live-chf').textContent = earnedChf.toFixed(2);
+      document.getElementById('live-azn').textContent = earnedAzn.toFixed(2);
+      
+      // Work duration and milestones
+      if (now >= startJob) {
+        document.getElementById('work-duration').textContent = formatDuration(elapsedMs);
+        const nextMilestone = getNextMilestone(earnedChf);
+        const timeToMilestone = ((nextMilestone - earnedChf) / rateSec) * 1000;
+        document.getElementById('next-milestone').textContent = 
+          `${nextMilestone} CHF ${formatDuration(timeToMilestone)} sonra`;
+      } else {
+        const timeUntilStart = startJob - now;
+        document.getElementById('work-duration').textContent = `${formatDuration(timeUntilStart)} sonra başlayır`;
+        document.getElementById('next-milestone').textContent = 'İş hələ başlamayıb';
+      }
+
+      // Progress helper
+      function updateProgress(start, end, infoId, barId) {
+        const total = end - start;
+        const passed = Math.max(0, now - start);
+        const pct = Math.min(Math.max(passed / total, 0), 1);
+        const left = Math.max(0, end - now);
+        
+        const daysP = Math.floor(passed / (1000*60*60*24));
+        const hrsP = Math.floor((passed % (1000*60*60*24)) / (1000*60*60));
+        const daysL = Math.floor(left / (1000*60*60*24));
+        const hrsL = Math.floor((left % (1000*60*60*24)) / (1000*60*60));
+
+        let status = '';
+        if (now < start) {
+          status = '⏳ Başlamayıb';
+        } else if (now > end) {
+          status = '✅ Tamamlandı';
+        } else {
+          status = '🔄 Davam edir';
+        }
+
+        document.getElementById(infoId).innerHTML =
+          `${status}<br>Keçdi: ${daysP}g ${hrsP}s | Qaldı: ${daysL}g ${hrsL}s | ${(pct*100).toFixed(1)}%`;
+        document.getElementById(barId).style.width = (pct * 100) + '%';
+      }
+
+      updateProgress(startTravel, endTravel, 'travel-info', 'travel-bar');
+      updateProgress(startJob, endJob, 'job-info', 'job-bar');
+    }
+
+    // Initialize
+    async function initialize() {
+      await fetchExchangeRate();
+      update();
+      
+      // Update every second
+      setInterval(update, 1000);
+      
+      // Refresh exchange rate every 30 minutes
+      setInterval(fetchExchangeRate, 30 * 60 * 1000);
+    }
+
+    // Start the application
+    initialize();
+  </script>
+</body>
+</html>

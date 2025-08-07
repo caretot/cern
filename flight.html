@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Tracker - Fuad's Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0f1419;
+            --secondary-bg: #1a1f2e;
+            --card-bg: #242938;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --pegasus: #e11d48;
+        }
+
+        [data-theme="light"] {
+            --primary-bg: #f8fafc;
+            --secondary-bg: #ffffff;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --pegasus: #e11d48;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        header {
+            background: var(--secondary-bg);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .theme-toggle, .lang-select {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .lang-select {
+            outline: none;
+        }
+
+        main {
+            padding: 1.5rem 0;
+            min-height: calc(100vh - 150px);
+        }
+
+        .timezone-notice {
+            background: var(--card-bg);
+            border: 2px solid var(--warning);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .timezone-notice .icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timezone-text {
+            font-weight: bold;
+            color: var(--warning);
+            font-size: 1rem;
+        }
+
+        .countdown-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .countdown-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            background: var(--secondary-bg);
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .time-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            display: block;
+        }
+
+        .time-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .passenger-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .passenger-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0;
+        }
+
+        .passenger-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent), var(--success));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .passenger-details h2 {
+            margin-bottom: 0.3rem;
+            font-size: 1.3rem;
+        }
+
+        .passenger-details p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .flights-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flight-segment {
+            margin-bottom: 1.5rem;
+            padding: 1.2rem;
+            background: var(--secondary-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--pegasus);
+        }
+
+        .flight-segment:last-child {
+            margin-bottom: 0;
+        }
+
+        .segment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .airline-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .pegasus-logo {
+            width: 35px;
+            height: 35px;
+            background: var(--pegasus);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            position: relative;
+        }
+
+        .pegasus-logo::before {
+            content: "🐎";
+            font-size: 1.2rem;
+        }
+
+        .airline-name {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-upcoming {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .flight-route {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .airport {
+            text-align: center;
+        }
+
+        .airport-code {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+
+        .airport-name {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .flight-time {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .flight-date {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .baku-time {
+            color: var(--warning);
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 0.2rem;
+        }
+
+        .route-arrow {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        footer {
+            background: var(--secondary-bg);
+            padding: 1.5rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-brand {
+            color: var(--accent);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+
+            .header-content {
+                justify-content: center;
+                text-align: center;
+            }
+
+            .countdown-timer {
+                gap: 0.5rem;
+            }
+
+            .time-unit {
+                min-width: 60px;
+                padding: 0.6rem;
+            }
+
+            .time-number {
+                font-size: 1.3rem;
+            }
+
+            .flight-route {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .route-arrow {
+                transform: rotate(90deg);
+            }
+
+            .passenger-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.8rem;
+            }
+
+            .segment-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" data-translate="title">Flight Tracker</div>
+                <div class="controls">
+                    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+                    <select class="lang-select" onchange="changeLanguage(this.value)">
+                        <option value="en">English</option>
+                        <option value="ru">Русский</option>
+                        <option value="az">Azərbaycan</option>
+                        <option value="tr">Türkçe</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="timezone-notice fade-in">
+                <div class="icon">🕐</div>
+                <div class="timezone-text" data-translate="timezone_notice">All times shown are in Baku time zone</div>
+            </div>
+
+            <div class="countdown-section fade-in">
+                <h1 class="countdown-title" data-translate="countdown_title">Time until arrival in Baku</h1>
+                <div class="countdown-timer" id="countdown">
+                    <div class="time-unit">
+                        <span class="time-number" id="days">0</span>
+                        <span class="time-label" data-translate="days">Days</span>
+                    </div>
+                    <div class="time-unit">
+                        <span class="time-number" id="hours">0</span>
+                        <span class="time-label" data-translate="hours">Hours</span>
+                    </div>
+                    <div class="time-unit">
+                        <span class="time-number" id="minutes">0</span>
+                        <span class="time-label" data-translate="minutes">Minutes</span>
+                    </div>
+                    <div class="time-unit">
+                        <span class="time-number" id="seconds">0</span>
+                        <span class="time-label" data-translate="seconds">Seconds</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="passenger-section fade-in">
+                <div class="passenger-info">
+                    <div class="passenger-avatar">FI</div>
+                    <div class="passenger-details">
+                        <h2>Fuad Ildarov</h2>
+                        <p data-translate="passenger_journey">Journey to Baku</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flights-section fade-in">
+                <div class="section-title">
+                    <span>✈️</span>
+                    <span data-translate="flight_details">Flight Details</span>
+                </div>
+
+                <div class="flight-segment">
+                    <div class="segment-header">
+                        <div class="airline-info">
+                            <div class="pegasus-logo"></div>
+                            <div>
+                                <div class="airline-name">Pegasus Airlines</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
+                    </div>
+                    
+                    <div class="flight-route">
+                        <div class="airport">
+                            <div class="airport-name" data-translate="geneva">Geneva</div>
+                            <div class="airport-code">GVA</div>
+                            <div class="flight-time">19:40</div>
+                            <div class="flight-date">17 Aug 2025</div>
+                            <div class="baku-time" data-translate="baku_time">Baku Time</div>
+                        </div>
+                        <div class="route-arrow">→</div>
+                        <div class="airport">
+                            <div class="airport-name" data-translate="istanbul">Istanbul</div>
+                            <div class="airport-code">IST</div>
+                            <div class="flight-time">22:45</div>
+                            <div class="flight-date">17 Aug 2025</div>
+                            <div class="baku-time" data-translate="baku_time">Baku Time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flight-segment">
+                    <div class="segment-header">
+                        <div class="airline-info">
+                            <div class="pegasus-logo"></div>
+                            <div>
+                                <div class="airline-name">Pegasus Airlines</div>
+                            </div>
+                        </div>
+                        <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
+                    </div>
+                    
+                    <div class="flight-route">
+                        <div class="airport">
+                            <div class="airport-name" data-translate="istanbul">Istanbul</div>
+                            <div class="airport-code">IST</div>
+                            <div class="flight-time">00:20</div>
+                            <div class="flight-date">18 Aug 2025</div>
+                            <div class="baku-time" data-translate="baku_time">Baku Time</div>
+                        </div>
+                        <div class="route-arrow">→</div>
+                        <div class="airport">
+                            <div class="airport-name" data-translate="baku">Baku</div>
+                            <div class="airport-code">GYD</div>
+                            <div class="flight-time">03:05</div>
+                            <div class="flight-date">18 Aug 2025</div>
+                            <div class="baku-time" data-translate="baku_time">Baku Time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p><span data-translate="footer_text">Designed by</span> <a href="#" class="footer-brand">Caretot</a> © 2025. <span data-translate="footer_rights">All rights reserved.</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                title: "Flight Tracker",
+                timezone_notice: "All times shown are in Baku time zone",
+                countdown_title: "Time until arrival in Baku",
+                days: "Days",
+                hours: "Hours", 
+                minutes: "Minutes",
+                seconds: "Seconds",
+                passenger_journey: "Journey to Baku",
+                flight_details: "Flight Details",
+                status_upcoming: "Upcoming",
+                status_completed: "Completed",
+                geneva: "Geneva",
+                istanbul: "Istanbul",
+                baku: "Baku",
+                baku_time: "Baku Time",
+                footer_text: "Designed by",
+                footer_rights: "All rights reserved."
+            },
+            ru: {
+                title: "Трекер рейсов",
+                timezone_notice: "Все времена указаны в часовом поясе Баку",
+                countdown_title: "Время до прибытия в Баку",
+                days: "Дни",
+                hours: "Часы",
+                minutes: "Минуты", 
+                seconds: "Секунды",
+                passenger_journey: "Путешествие в Баку",
+                flight_details: "Детали рейсов",
+                status_upcoming: "Предстоящий",
+                status_completed: "Завершён",
+                geneva: "Женева",
+                istanbul: "Стамбул",
+                baku: "Баку",
+                baku_time: "Время Баку",
+                footer_text: "Разработано",
+                footer_rights: "Все права защищены."
+            },
+            az: {
+                title: "Uçuş İzləyicisi",
+                timezone_notice: "Bütün vaxtlar Bakı saat qurşağında göstərilir",
+                countdown_title: "Bakıya gəlişə qədər vaxt",
+                days: "Günlər",
+                hours: "Saatlar",
+                minutes: "Dəqiqələr",
+                seconds: "Saniyələr", 
+                passenger_journey: "Bakıya səyahət",
+                flight_details: "Uçuş Təfərrüatları",
+                status_upcoming: "Gələcək",
+                status_completed: "Tamamlandı",
+                geneva: "Cenevrə",
+                istanbul: "İstanbul",
+                baku: "Bakı",
+                baku_time: "Bakı Vaxtı",
+                footer_text: "Dizayn edən",
+                footer_rights: "Bütün hüquqlar qorunur."
+            },
+            tr: {
+                title: "Uçuş Takipçisi", 
+                timezone_notice: "Tüm saatler Bakü saat diliminde gösterilmektedir",
+                countdown_title: "Bakü'ye varışa kalan süre",
+                days: "Günler",
+                hours: "Saatler",
+                minutes: "Dakikalar",
+                seconds: "Saniyeler",
+                passenger_journey: "Bakü yolculuğu",
+                flight_details: "Uçuş Detayları",
+                status_upcoming: "Yaklaşan",
+                status_completed: "Tamamlandı",
+                geneva: "Cenevre",
+                istanbul: "İstanbul", 
+                baku: "Bakü",
+                baku_time: "Bakü Saati",
+                footer_text: "Tasarlayan",
+                footer_rights: "Tüm hakları saklıdır."
+            }
+        };
+
+        let currentLang = 'en';
+
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                themeToggle.textContent = '☀️';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = '🌙';
+            }
+        }
+
+        // Language change
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const elements = document.querySelectorAll('[data-translate]');
+            
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        // Countdown timer
+        function updateCountdown() {
+            // Target date: August 18, 2025, 03:05 Baku time (UTC+4)
+            // Converting to UTC: 03:05 - 4 = 23:05 previous day (August 17)
+            const targetDate = new Date('2025-08-17T23:05:00Z');
+            const now = new Date();
+            const timeDiff = targetDate.getTime() - now.getTime();
+
+            if (timeDiff > 0) {
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                document.getElementById('days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            } else {
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+                
+                // Update status to completed
+                const statusBadges = document.querySelectorAll('.status-badge');
+                statusBadges.forEach(badge => {
+                    badge.className = 'status-badge status-completed';
+                    badge.setAttribute('data-translate', 'status_completed');
+                    badge.textContent = translations[currentLang].status_completed || 'Completed';
+                });
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial theme
+            const themeToggle = document.querySelector('.theme-toggle');
+            themeToggle.textContent = '🌙';
+            
+            // Start countdown
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+            
+            // Add animation delays
+            const cards = document.querySelectorAll('.fade-in');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.15}s`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flight Tracker - Fuad's Journey</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flight Tracker - Fuad's Journey</title>
+  <style>
+    /* Your existing styles remain unchanged... (you already have them) */
     <style>
         * {
             margin: 0;
@@ -421,143 +423,163 @@
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-    </style>
+    
+    
+    .passenger-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .pegasus-logo-img {
+      width: 40px;
+      height: auto;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body data-theme="dark">
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo" data-translate="title">Flight Tracker</div>
-                <div class="controls">
-                    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-                    <select class="lang-select" onchange="changeLanguage(this.value)">
-                        <option value="en">English</option>
-                        <option value="ru">Русский</option>
-                        <option value="az">Azərbaycan</option>
-                        <option value="tr">Türkçe</option>
-                    </select>
-                </div>
-            </div>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo" data-translate="title">Flight Tracker</div>
+        <div class="controls">
+          <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+          <select class="lang-select" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="ru">Русский</option>
+            <option value="az">Azərbaycan</option>
+            <option value="tr">Türkçe</option>
+          </select>
         </div>
-    </header>
+      </div>
+    </div>
+  </header>
 
-    <main>
-        <div class="container">
-            <div class="timezone-notice fade-in">
-                <div class="icon">🕐</div>
-                <div class="timezone-text" data-translate="timezone_notice">All times shown are in Baku time zone</div>
-            </div>
+  <main>
+    <div class="container">
+      <div class="timezone-notice fade-in">
+        <div class="icon">🕐</div>
+        <div class="timezone-text" data-translate="timezone_notice">All times shown are in Baku time zone</div>
+      </div>
 
-            <div class="countdown-section fade-in">
-                <h1 class="countdown-title" data-translate="countdown_title">Time until arrival in Baku</h1>
-                <div class="countdown-timer" id="countdown">
-                    <div class="time-unit">
-                        <span class="time-number" id="days">0</span>
-                        <span class="time-label" data-translate="days">Days</span>
-                    </div>
-                    <div class="time-unit">
-                        <span class="time-number" id="hours">0</span>
-                        <span class="time-label" data-translate="hours">Hours</span>
-                    </div>
-                    <div class="time-unit">
-                        <span class="time-number" id="minutes">0</span>
-                        <span class="time-label" data-translate="minutes">Minutes</span>
-                    </div>
-                    <div class="time-unit">
-                        <span class="time-number" id="seconds">0</span>
-                        <span class="time-label" data-translate="seconds">Seconds</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="passenger-section fade-in">
-                <div class="passenger-info">
-                    <div class="passenger-avatar">FI</div>
-                    <div class="passenger-details">
-                        <h2>Fuad Ildarov</h2>
-                        <p data-translate="passenger_journey">Journey to Baku</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flights-section fade-in">
-                <div class="section-title">
-                    <span>✈️</span>
-                    <span data-translate="flight_details">Flight Details</span>
-                </div>
-
-                <div class="flight-segment">
-                    <div class="segment-header">
-                        <div class="airline-info">
-                            <div class="pegasus-logo"></div>
-                            <div>
-                                <div class="airline-name">Pegasus Airlines</div>
-                            </div>
-                        </div>
-                        <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
-                    </div>
-                    
-                    <div class="flight-route">
-                        <div class="airport">
-                            <div class="airport-name" data-translate="geneva">Geneva</div>
-                            <div class="airport-code">GVA</div>
-                            <div class="flight-time">19:40</div>
-                            <div class="flight-date">17 Aug 2025</div>
-                            <div class="baku-time" data-translate="baku_time">Baku Time</div>
-                        </div>
-                        <div class="route-arrow">→</div>
-                        <div class="airport">
-                            <div class="airport-name" data-translate="istanbul">Istanbul</div>
-                            <div class="airport-code">IST</div>
-                            <div class="flight-time">22:45</div>
-                            <div class="flight-date">17 Aug 2025</div>
-                            <div class="baku-time" data-translate="baku_time">Baku Time</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flight-segment">
-                    <div class="segment-header">
-                        <div class="airline-info">
-                            <div class="pegasus-logo"></div>
-                            <div>
-                                <div class="airline-name">Pegasus Airlines</div>
-                            </div>
-                        </div>
-                        <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
-                    </div>
-                    
-                    <div class="flight-route">
-                        <div class="airport">
-                            <div class="airport-name" data-translate="istanbul">Istanbul</div>
-                            <div class="airport-code">IST</div>
-                            <div class="flight-time">00:20</div>
-                            <div class="flight-date">18 Aug 2025</div>
-                            <div class="baku-time" data-translate="baku_time">Baku Time</div>
-                        </div>
-                        <div class="route-arrow">→</div>
-                        <div class="airport">
-                            <div class="airport-name" data-translate="baku">Baku</div>
-                            <div class="airport-code">GYD</div>
-                            <div class="flight-time">03:05</div>
-                            <div class="flight-date">18 Aug 2025</div>
-                            <div class="baku-time" data-translate="baku_time">Baku Time</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="countdown-section fade-in">
+        <h1 class="countdown-title" data-translate="countdown_title">Time until arrival in Baku</h1>
+        <div class="countdown-timer" id="countdown">
+          <div class="time-unit">
+            <span class="time-number" id="days">0</span>
+            <span class="time-label" data-translate="days">Days</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-number" id="hours">0</span>
+            <span class="time-label" data-translate="hours">Hours</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-number" id="minutes">0</span>
+            <span class="time-label" data-translate="minutes">Minutes</span>
+          </div>
+          <div class="time-unit">
+            <span class="time-number" id="seconds">0</span>
+            <span class="time-label" data-translate="seconds">Seconds</span>
+          </div>
         </div>
-    </main>
+      </div>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <p><span data-translate="footer_text">Designed by</span> <a href="#" class="footer-brand">Caretot</a> © 2025. <span data-translate="footer_rights">All rights reserved.</span></p>
-            </div>
+      <div class="passenger-section fade-in">
+        <div class="passenger-info">
+          <img src="https://media.licdn.com/dms/image/v2/D4E03AQEeWMEm_-bhDg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1721133898384?e=1757548800&v=beta&t=7uf6D5ZCqmgNkZkAQLcS7RwzNpxBsn8AMTpFK1yKRPU" 
+               alt="Fuad Ildarov" 
+               class="passenger-avatar" />
+          <div class="passenger-details">
+            <h2>Fuad Ildarov</h2>
+            <p data-translate="passenger_journey">Journey to Baku</p>
+          </div>
         </div>
-    </footer>
+      </div>
 
-    <script>
+      <div class="flights-section fade-in">
+        <div class="section-title">
+          <span>✈️</span>
+          <span data-translate="flight_details">Flight Details</span>
+        </div>
+
+        <!-- First Flight Segment -->
+        <div class="flight-segment">
+          <div class="segment-header">
+            <div class="airline-info">
+              <img src="https://images.seeklogo.com/logo-png/10/1/pegasus-airlines-logo-png_seeklogo-107154.png" 
+                   alt="Pegasus Airlines Logo" 
+                   class="pegasus-logo-img" />
+              <div>
+                <div class="airline-name">Pegasus Airlines</div>
+              </div>
+            </div>
+            <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
+          </div>
+          <div class="flight-route">
+            <div class="airport">
+              <div class="airport-name" data-translate="geneva">Geneva</div>
+              <div class="airport-code">GVA</div>
+              <div class="flight-time">19:40</div>
+              <div class="flight-date">17 Aug 2025</div>
+              <div class="baku-time" data-translate="baku_time">Baku Time</div>
+            </div>
+            <div class="route-arrow">→</div>
+            <div class="airport">
+              <div class="airport-name" data-translate="istanbul">Istanbul</div>
+              <div class="airport-code">IST</div>
+              <div class="flight-time">22:45</div>
+              <div class="flight-date">17 Aug 2025</div>
+              <div class="baku-time" data-translate="baku_time">Baku Time</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Second Flight Segment -->
+        <div class="flight-segment">
+          <div class="segment-header">
+            <div class="airline-info">
+              <img src="https://images.seeklogo.com/logo-png/10/1/pegasus-airlines-logo-png_seeklogo-107154.png" 
+                   alt="Pegasus Airlines Logo" 
+                   class="pegasus-logo-img" />
+              <div>
+                <div class="airline-name">Pegasus Airlines</div>
+              </div>
+            </div>
+            <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
+          </div>
+          <div class="flight-route">
+            <div class="airport">
+              <div class="airport-name" data-translate="istanbul">Istanbul</div>
+              <div class="airport-code">IST</div>
+              <div class="flight-time">00:20</div>
+              <div class="flight-date">18 Aug 2025</div>
+              <div class="baku-time" data-translate="baku_time">Baku Time</div>
+            </div>
+            <div class="route-arrow">→</div>
+            <div class="airport">
+              <div class="airport-name" data-translate="baku">Baku</div>
+              <div class="airport-code">GYD</div>
+              <div class="flight-time">03:05</div>
+              <div class="flight-date">18 Aug 2025</div>
+              <div class="baku-time" data-translate="baku_time">Baku Time</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p><span data-translate="footer_text">Designed by</span> <a href="#" class="footer-brand">Caretot</a> © 2025. <span data-translate="footer_rights">All rights reserved.</span></p>
+      </div>
+    </div>
+  </footer>
+
+ <script>
         // Translations
         const translations = {
             en: {

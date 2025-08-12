@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Flight Tracker - Fuad's Journey</title>
+  <title>Flight Tracker - Fuad & Kanan's Journey</title>
+
   <style>
-    /* Your existing styles remain unchanged... (you already have them) */
-    <style>
         * {
             margin: 0;
             padding: 0;
@@ -25,6 +24,7 @@
             --success: #10b981;
             --warning: #f59e0b;
             --pegasus: #e11d48;
+            --ajet: #ff6b35;
         }
 
         [data-theme="light"] {
@@ -39,6 +39,7 @@
             --success: #10b981;
             --warning: #f59e0b;
             --pegasus: #e11d48;
+            --ajet: #ff6b35;
         }
 
         body {
@@ -105,6 +106,40 @@
         main {
             padding: 1.5rem 0;
             min-height: calc(100vh - 150px);
+        }
+
+        .passenger-switch {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .switch-btn {
+            background: var(--secondary-bg);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .switch-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .switch-btn:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .timezone-notice {
@@ -193,14 +228,8 @@
         .passenger-avatar {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, var(--accent), var(--success));
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
+            object-fit: cover;
         }
 
         .passenger-details h2 {
@@ -237,7 +266,14 @@
             background: var(--secondary-bg);
             border-radius: 10px;
             border: 1px solid var(--border);
+        }
+
+        .flight-segment.pegasus {
             border-left: 4px solid var(--pegasus);
+        }
+
+        .flight-segment.ajet {
+            border-left: 4px solid var(--ajet);
         }
 
         .flight-segment:last-child {
@@ -259,23 +295,12 @@
             gap: 0.8rem;
         }
 
-        .pegasus-logo {
-            width: 35px;
-            height: 35px;
-            background: var(--pegasus);
+        .airline-logo-img {
+            width: 40px;
+            height: auto;
             border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 0.8rem;
-            position: relative;
-        }
-
-        .pegasus-logo::before {
-            content: "🐎";
-            font-size: 1.2rem;
+            background: white;
+            padding: 4px;
         }
 
         .airline-name {
@@ -380,6 +405,15 @@
                 text-align: center;
             }
 
+            .passenger-switch {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .switch-btn {
+                padding: 0.6rem 1rem;
+            }
+
             .countdown-timer {
                 gap: 0.5rem;
             }
@@ -423,21 +457,12 @@
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-    
-    
-    .passenger-avatar {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
 
-    .pegasus-logo-img {
-      width: 40px;
-      height: auto;
-      border-radius: 6px;
-    }
+        .hidden {
+            display: none;
+        }
   </style>
+  
 </head>
 <body data-theme="dark">
   <header>
@@ -459,13 +484,18 @@
 
   <main>
     <div class="container">
+      <div class="passenger-switch fade-in">
+        <button class="switch-btn active" onclick="switchPassenger('fuad')" data-translate="fuad_journey">Fuad's Journey</button>
+        <button class="switch-btn" onclick="switchPassenger('kanan')" data-translate="kanan_journey">Kanan's Journey</button>
+      </div>
+
       <div class="timezone-notice fade-in">
         <div class="icon">🕐</div>
         <div class="timezone-text" data-translate="timezone_notice">All times shown are in Baku time zone</div>
       </div>
 
       <div class="countdown-section fade-in">
-        <h1 class="countdown-title" data-translate="countdown_title">Time until arrival in Baku</h1>
+        <h1 class="countdown-title" id="countdown-title" data-translate="countdown_title_fuad">Time until Fuad's arrival in Baku</h1>
         <div class="countdown-timer" id="countdown">
           <div class="time-unit">
             <span class="time-number" id="days">0</span>
@@ -487,83 +517,124 @@
       </div>
 
       <div class="passenger-section fade-in">
-        <div class="passenger-info">
+        <div class="section-title">
+          <span data-translate="passenger_details">Passenger Details</span>
+        </div>
+        <div class="passenger-info" id="passenger-info">
           <img src="https://media.licdn.com/dms/image/v2/D4E03AQEeWMEm_-bhDg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1721133898384?e=1757548800&v=beta&t=7uf6D5ZCqmgNkZkAQLcS7RwzNpxBsn8AMTpFK1yKRPU" 
                alt="Fuad Ildarov" 
-               class="passenger-avatar" />
+               class="passenger-avatar"
+               id="passenger-avatar" />
           <div class="passenger-details">
-            <h2>Fuad Ildarov</h2>
-            <p data-translate="passenger_journey">Journey to Baku</p>
+            <h2 id="passenger-name">Fuad Ildarov</h2>
+            <p id="passenger-journey" data-translate="passenger_journey_fuad">Journey to Baku</p>
           </div>
         </div>
       </div>
 
       <div class="flights-section fade-in">
         <div class="section-title">
-          <span>✈️</span>
           <span data-translate="flight_details">Flight Details</span>
         </div>
 
-        <!-- First Flight Segment -->
-        <div class="flight-segment">
-          <div class="segment-header">
-            <div class="airline-info">
-              <img src="https://images.seeklogo.com/logo-png/10/1/pegasus-airlines-logo-png_seeklogo-107154.png" 
-                   alt="Pegasus Airlines Logo" 
-                   class="pegasus-logo-img" />
-              <div>
-                <div class="airline-name">Pegasus Airlines</div>
+        <!-- Fuad's Flights -->
+        <div id="fuad-flights">
+          <!-- First Flight Segment -->
+          <div class="flight-segment pegasus">
+            <div class="segment-header">
+              <div class="airline-info">
+                <img src="https://images.seeklogo.com/logo-png/10/1/pegasus-airlines-logo-png_seeklogo-107154.png" 
+                     alt="Pegasus Airlines Logo" 
+                     class="airline-logo-img" />
+                <div>
+                  <div class="airline-name">Pegasus Airlines</div>
+                </div>
+              </div>
+              <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
+            </div>
+            <div class="flight-route">
+              <div class="airport">
+                <div class="airport-name" data-translate="geneva">Geneva</div>
+                <div class="airport-code">GVA</div>
+                <div class="flight-time">19:40</div>
+                <div class="flight-date">17 Aug 2025</div>
+                <div class="baku-time" data-translate="baku_time">Baku Time</div>
+              </div>
+              <div class="route-arrow">→</div>
+              <div class="airport">
+                <div class="airport-name" data-translate="istanbul">Istanbul</div>
+                <div class="airport-code">IST</div>
+                <div class="flight-time">22:45</div>
+                <div class="flight-date">17 Aug 2025</div>
+                <div class="baku-time" data-translate="baku_time">Baku Time</div>
               </div>
             </div>
-            <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
           </div>
-          <div class="flight-route">
-            <div class="airport">
-              <div class="airport-name" data-translate="geneva">Geneva</div>
-              <div class="airport-code">GVA</div>
-              <div class="flight-time">19:40</div>
-              <div class="flight-date">17 Aug 2025</div>
-              <div class="baku-time" data-translate="baku_time">Baku Time</div>
+
+          <!-- Second Flight Segment -->
+          <div class="flight-segment pegasus">
+            <div class="segment-header">
+              <div class="airline-info">
+                <img src="https://images.seeklogo.com/logo-png/10/1/pegasus-airlines-logo-png_seeklogo-107154.png" 
+                     alt="Pegasus Airlines Logo" 
+                     class="airline-logo-img" />
+                <div>
+                  <div class="airline-name">Pegasus Airlines</div>
+                </div>
+              </div>
+              <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
             </div>
-            <div class="route-arrow">→</div>
-            <div class="airport">
-              <div class="airport-name" data-translate="istanbul">Istanbul</div>
-              <div class="airport-code">IST</div>
-              <div class="flight-time">22:45</div>
-              <div class="flight-date">17 Aug 2025</div>
-              <div class="baku-time" data-translate="baku_time">Baku Time</div>
+            <div class="flight-route">
+              <div class="airport">
+                <div class="airport-name" data-translate="istanbul">Istanbul</div>
+                <div class="airport-code">IST</div>
+                <div class="flight-time">00:20</div>
+                <div class="flight-date">18 Aug 2025</div>
+                <div class="baku-time" data-translate="baku_time">Baku Time</div>
+              </div>
+              <div class="route-arrow">→</div>
+              <div class="airport">
+                <div class="airport-name" data-translate="baku">Baku</div>
+                <div class="airport-code">GYD</div>
+                <div class="flight-time">03:05</div>
+                <div class="flight-date">18 Aug 2025</div>
+                <div class="baku-time" data-translate="baku_time">Baku Time</div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Second Flight Segment -->
-        <div class="flight-segment">
-          <div class="segment-header">
-            <div class="airline-info">
-              <img src="https://images.seeklogo.com/logo-png/10/1/pegasus-airlines-logo-png_seeklogo-107154.png" 
-                   alt="Pegasus Airlines Logo" 
-                   class="pegasus-logo-img" />
-              <div>
-                <div class="airline-name">Pegasus Airlines</div>
+        <!-- Kanan's Flights -->
+        <div id="kanan-flights" class="hidden">
+          <div class="flight-segment ajet">
+            <div class="segment-header">
+              <div class="airline-info">
+                <img src="https://ajet.com/_ajt_theme/svg/corporate-white.svg" 
+                     alt="AJet Logo" 
+                     class="airline-logo-img"
+                     style="filter: invert(1);" />
+                <div>
+                  <div class="airline-name">AJet</div>
+                </div>
               </div>
+              <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
             </div>
-            <div class="status-badge status-upcoming" data-translate="status_upcoming">Upcoming</div>
-          </div>
-          <div class="flight-route">
-            <div class="airport">
-              <div class="airport-name" data-translate="istanbul">Istanbul</div>
-              <div class="airport-code">IST</div>
-              <div class="flight-time">00:20</div>
-              <div class="flight-date">18 Aug 2025</div>
-              <div class="baku-time" data-translate="baku_time">Baku Time</div>
-            </div>
-            <div class="route-arrow">→</div>
-            <div class="airport">
-              <div class="airport-name" data-translate="baku">Baku</div>
-              <div class="airport-code">GYD</div>
-              <div class="flight-time">03:05</div>
-              <div class="flight-date">18 Aug 2025</div>
-              <div class="baku-time" data-translate="baku_time">Baku Time</div>
+            <div class="flight-route">
+              <div class="airport">
+                <div class="airport-name" data-translate="istanbul_saw">Istanbul SAW</div>
+                <div class="airport-code">SAW</div>
+                <div class="flight-time">13:45</div>
+                <div class="flight-date">13 Aug 2025</div>
+                <div class="baku-time" data-translate="baku_time">Baku Time</div>
+              </div>
+              <div class="route-arrow">→</div>
+              <div class="airport">
+                <div class="airport-name" data-translate="baku">Baku</div>
+                <div class="airport-code">GYD</div>
+                <div class="flight-time">16:35</div>
+                <div class="flight-date">13 Aug 2025</div>
+                <div class="baku-time" data-translate="baku_time">Baku Time</div>
+              </div>
             </div>
           </div>
         </div>
@@ -584,18 +655,24 @@
         const translations = {
             en: {
                 title: "Flight Tracker",
+                fuad_journey: "Fuad's Journey",
+                kanan_journey: "Kanan's Journey",
                 timezone_notice: "All times shown are in Baku time zone",
-                countdown_title: "Time until arrival in Baku",
+                countdown_title_fuad: "Time until Fuad's arrival in Baku",
+                countdown_title_kanan: "Time until Kanan's arrival in Baku",
                 days: "Days",
                 hours: "Hours", 
                 minutes: "Minutes",
                 seconds: "Seconds",
-                passenger_journey: "Journey to Baku",
+                passenger_journey_fuad: "Journey to Baku",
+                passenger_journey_kanan: "Journey to Baku",
                 flight_details: "Flight Details",
+                passenger_details: "Passenger Details",
                 status_upcoming: "Upcoming",
                 status_completed: "Completed",
                 geneva: "Geneva",
                 istanbul: "Istanbul",
+                istanbul_saw: "Istanbul SAW",
                 baku: "Baku",
                 baku_time: "Baku Time",
                 footer_text: "Designed by",
@@ -603,18 +680,24 @@
             },
             ru: {
                 title: "Трекер рейсов",
+                fuad_journey: "Путешествие Фуада",
+                kanan_journey: "Путешествие Канана",
                 timezone_notice: "Все времена указаны в часовом поясе Баку",
-                countdown_title: "Время до прибытия в Баку",
+                countdown_title_fuad: "Время до прибытия Фуада в Баку",
+                countdown_title_kanan: "Время до прибытия Канана в Баку",
                 days: "Дни",
                 hours: "Часы",
                 minutes: "Минуты", 
                 seconds: "Секунды",
-                passenger_journey: "Путешествие в Баку",
+                passenger_journey_fuad: "Путешествие в Баку",
+                passenger_journey_kanan: "Путешествие в Баку",
                 flight_details: "Детали рейсов",
+                passenger_details: "Данные пассажира",
                 status_upcoming: "Предстоящий",
                 status_completed: "Завершён",
                 geneva: "Женева",
                 istanbul: "Стамбул",
+                istanbul_saw: "Стамбул SAW",
                 baku: "Баку",
                 baku_time: "Время Баку",
                 footer_text: "Разработано",
@@ -622,18 +705,24 @@
             },
             az: {
                 title: "Uçuş İzləyicisi",
+                fuad_journey: "Fuadın səyahəti",
+                kanan_journey: "Kananın səyahəti",
                 timezone_notice: "Bütün vaxtlar Bakı saat qurşağında göstərilir",
-                countdown_title: "Bakıya gəlişə qədər vaxt",
-                days: "Günlər",
-                hours: "Saatlar",
-                minutes: "Dəqiqələr",
-                seconds: "Saniyələr", 
-                passenger_journey: "Bakıya səyahət",
+                countdown_title_fuad: "Fuadın Bakıya gəlişinə qalan vaxt",
+                countdown_title_kanan: "Kananın Bakıya gəlişinə qalan vaxt",
+                days: "Gün",
+                hours: "Saat",
+                minutes: "Dəqiqə",
+                seconds: "Saniyə", 
+                passenger_journey_fuad: "Bakıya səyahət",
+                passenger_journey_kanan: "Bakıya səyahət",
                 flight_details: "Uçuş Təfərrüatları",
+                passenger_details: "Sərnişin Təfərrüatları",
                 status_upcoming: "Gələcək",
                 status_completed: "Tamamlandı",
                 geneva: "Cenevrə",
                 istanbul: "İstanbul",
+                istanbul_saw: "İstanbul SAW",
                 baku: "Bakı",
                 baku_time: "Bakı Vaxtı",
                 footer_text: "Dizayn edən",
@@ -641,18 +730,24 @@
             },
             tr: {
                 title: "Uçuş Takipçisi", 
+                fuad_journey: "Fuad'ın yolculuğu",
+                kanan_journey: "Kanan'ın yolculuğu",
                 timezone_notice: "Tüm saatler Bakü saat diliminde gösterilmektedir",
-                countdown_title: "Bakü'ye varışa kalan süre",
-                days: "Günler",
-                hours: "Saatler",
-                minutes: "Dakikalar",
-                seconds: "Saniyeler",
-                passenger_journey: "Bakü yolculuğu",
+                countdown_title_fuad: "Fuad'ın Bakü'ye varışına kalan süre",
+                countdown_title_kanan: "Kanan'ın Bakü'ye varışına kalan süre",
+                days: "Gün",
+                hours: "Saat",
+                minutes: "Dakika",
+                seconds: "Saniye",
+                passenger_journey_fuad: "Bakü yolculuğu",
+                passenger_journey_kanan: "Bakü yolculuğu",
                 flight_details: "Uçuş Detayları",
+                passenger_details: "Yolcu Detayları",
                 status_upcoming: "Yaklaşan",
                 status_completed: "Tamamlandı",
                 geneva: "Cenevre",
                 istanbul: "İstanbul", 
+                istanbul_saw: "İstanbul SAW",
                 baku: "Bakü",
                 baku_time: "Bakü Saati",
                 footer_text: "Tasarlayan",
@@ -661,6 +756,55 @@
         };
 
         let currentLang = 'en';
+        let currentPassenger = 'fuad';
+
+        // Passenger data
+        const passengerData = {
+            fuad: {
+                name: "Fuad Ildarov",
+                photo: "https://media.licdn.com/dms/image/v2/D4E03AQEeWMEm_-bhDg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1721133898384?e=1757548800&v=beta&t=7uf6D5ZCqmgNkZkAQLcS7RwzNpxBsn8AMTpFK1yKRPU",
+                arrivalTime: new Date('2025-08-17T23:05:00Z') // Aug 18, 03:05 Baku time
+            },
+            kanan: {
+                name: "Kanan Abdullayev",
+                photo: "https://i.ibb.co/67ZNx7bh/Whats-App-Image-2025-08-12-at-14-46-08-c1aa2e4d-removebg-preview-Photoroom.png",
+                arrivalTime: new Date('2025-08-13T12:35:00Z') // Aug 12, 16:35 Baku time
+            }
+        };
+
+        // Switch passenger function
+        function switchPassenger(passenger) {
+            currentPassenger = passenger;
+            
+            // Update buttons
+            document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchPassenger('${passenger}')"]`).classList.add('active');
+            
+            // Update passenger info
+            const data = passengerData[passenger];
+            document.getElementById('passenger-avatar').src = data.photo;
+            document.getElementById('passenger-avatar').alt = data.name;
+            document.getElementById('passenger-name').textContent = data.name;
+            
+            // Update countdown title
+            const titleKey = `countdown_title_${passenger}`;
+            document.getElementById('countdown-title').setAttribute('data-translate', titleKey);
+            document.getElementById('countdown-title').textContent = translations[currentLang][titleKey];
+            
+            // Update passenger journey text
+            const journeyKey = `passenger_journey_${passenger}`;
+            document.getElementById('passenger-journey').setAttribute('data-translate', journeyKey);
+            document.getElementById('passenger-journey').textContent = translations[currentLang][journeyKey];
+            
+            // Show/hide flight sections
+            if (passenger === 'fuad') {
+                document.getElementById('fuad-flights').classList.remove('hidden');
+                document.getElementById('kanan-flights').classList.add('hidden');
+            } else {
+                document.getElementById('fuad-flights').classList.add('hidden');
+                document.getElementById('kanan-flights').classList.remove('hidden');
+            }
+        }
 
         // Theme toggle
         function toggleTheme() {
@@ -689,12 +833,44 @@
             });
         }
 
+        function getBakuNow() {
+            // Current time in milliseconds UTC
+            const nowUtc = Date.now();
+
+            // Create a formatter to get the offset between UTC and Baku in minutes
+            const tz = 'Asia/Baku';
+
+            // Use Intl.DateTimeFormat to get the current offset in minutes from UTC for Baku
+            const dtf = new Intl.DateTimeFormat('en-US', {
+                timeZone: tz,
+                hour12: false,
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+            });
+
+            // Format current time in Baku time as string
+            const parts = dtf.formatToParts(new Date(nowUtc));
+            const map = {};
+            parts.forEach(({ type, value }) => { map[type] = value; });
+
+            // Build a Date object from Baku time parts but interpreted as local time
+            const bakuLocal = new Date(`${map.year}-${map.month}-${map.day}T${map.hour}:${map.minute}:${map.second}`);
+
+            // Calculate offset between UTC now and Baku local time in ms
+            // Because bakuLocal is local time, but constructed from Baku time parts,
+            // The difference nowUtc - bakuLocal.getTime() gives offset in ms (but with sign inverted)
+            // So add that offset to nowUtc to get actual Baku time in ms
+            const offset = nowUtc - bakuLocal.getTime();
+
+            // Baku time as timestamp = current UTC time + offset
+            return new Date(nowUtc - offset);
+        }
+
         // Countdown timer
         function updateCountdown() {
-            // Target date: August 18, 2025, 03:05 Baku time (UTC+4)
-            // Converting to UTC: 03:05 - 4 = 23:05 previous day (August 17)
-            const targetDate = new Date('2025-08-17T23:05:00Z');
+            const targetDate = passengerData[currentPassenger].arrivalTime;
             const now = new Date();
+
             const timeDiff = targetDate.getTime() - now.getTime();
 
             if (timeDiff > 0) {
@@ -713,8 +889,12 @@
                 document.getElementById('minutes').textContent = '00';
                 document.getElementById('seconds').textContent = '00';
                 
-                // Update status to completed
-                const statusBadges = document.querySelectorAll('.status-badge');
+                // Update status to completed for current passenger's flights
+                const currentFlights = currentPassenger === 'fuad' ? 
+                    document.getElementById('fuad-flights') : 
+                    document.getElementById('kanan-flights');
+                    
+                const statusBadges = currentFlights.querySelectorAll('.status-badge');
                 statusBadges.forEach(badge => {
                     badge.className = 'status-badge status-completed';
                     badge.setAttribute('data-translate', 'status_completed');

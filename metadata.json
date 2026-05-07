@@ -1,0 +1,8 @@
+{
+  "name": "MatchDay Baku: Qızılbaşlar vs Lejyonerlər",
+  "description": "A premium SofaScore-inspired match preview for the ultimate Baku football showdown.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
